@@ -1,16 +1,3 @@
-<style type="text/css">
-img[src*='#left'] {
-    float: left;
-}
-img[src*='#right'] {
-    float: right;
-}
-img[src*='#center'] {
-    display: block;
-    margin: auto;
-}
-</style>
-
 From scratch implementation for learning a (linearly separable) two class problem.
 This is part of an introductory example in my master thesis. More details can be found in the text.
 
@@ -29,14 +16,18 @@ In the second case, where the labels do not take discrete values, the ground-tru
 ## Visualization
 
 ### With 'hard' labels
-![Loss](./images/loss.jpg#left)
-![Contour](./images/contour.jpg#right)
-![Surface](./images/surface.jpg#center)
+<p float="left">
+  <img src="./images/loss.jpg" width="100" />
+  <img src="./images/contour.jpg" width="100" /> 
+  <img src="./images/surface.jpg" width="100" />
+</p>
 
 ### With smooth labels
-![Loss](./images/loss_noisy.jpg#left)
-![Contour](./images/contour_noisy.jpg#right)
-![Surface](./images/surface_noisy.jpg#center)
+<p float="left">
+  <img src="./images/loss_noisy.jpg" width="100" />
+  <img src="./images/contour_noisy.jpg" width="100" /> 
+  <img src="./images/surface_noisy.jpg" width="100" />
+</p>
 
 
 
