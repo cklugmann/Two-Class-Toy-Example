@@ -1,4 +1,4 @@
-<style>
+<style type="text/css">
 img[src*='#left'] {
     float: left;
 }
