@@ -1,3 +1,4 @@
+import os
 import copy
 
 import numpy as np
@@ -116,7 +117,25 @@ def generate_dataset(N, p_class=0.5, noisy=False, alpha=2):
 def main():
     N_train, N_test = 64, 32
     use_noisy_labels = True
+    save_files = True
 
+    train_args = {
+        'lr': 5.,
+        'batch_size': 16,
+        'n_epochs': 64
+    }
+
+    _plot_title = lambda t: ' '.join([t, '(smooth labels)' if use_noisy_labels else ''])
+
+    if not use_noisy_labels:
+        train_args['lr'] *= 10
+
+    def _filename(fbase, ftype='jpg', base_dir='images'):
+        fname = os.path.join(base_dir, '{}{}.{}'.format(fbase, '_noisy' if use_noisy_labels else '', ftype))
+        os.makedirs(base_dir, exist_ok=True)
+        return fname
+
+    np.random.seed(0)
     X_test, y_test = generate_dataset(N_test, noisy=use_noisy_labels)
     X_train, y_train = generate_dataset(N_train, noisy=use_noisy_labels)
 
@@ -127,7 +146,7 @@ def main():
     repeats = 100
     test_accuracy = list()
     for _ in range(repeats):
-        model.fit(X_train, y_train, lr=1., batch_size=16, n_epochs=32)
+        model.fit(X_train, y_train, **train_args)
         current_logs = copy.deepcopy(model.logs)
         logs.append(current_logs)
         if not use_noisy_labels:
@@ -151,12 +170,16 @@ def main():
         'val_loss': 'val'
     }
 
+    f, ax = plt.subplots()
     for k, v in losses.items():
-        plt.plot(iterations, v['mean'], label=keys_to_labels[k])
-        plt.fill_between(iterations, v['mean']-v['std'], v['mean']+v['std'], alpha=0.5)
-    plt.xlabel('Iterations')
-    plt.ylabel('Loss')
-    plt.legend(loc='upper right')
+        ax.plot(iterations, v['mean'], label=keys_to_labels[k])
+        ax.fill_between(iterations, v['mean']-v['std'], v['mean']+v['std'], alpha=0.5)
+    ax.set_title(_plot_title('Cross-entropy loss'))
+    ax.set_xlabel('Iterations')
+    ax.set_ylabel('Loss')
+    ax.legend(loc='upper right')
+    if save_files:
+        f.savefig(_filename('loss'), bbox_inches='tight')
     plt.show()
 
     # Print the mean test accuracy if we consider the case of `hard` labels
@@ -188,15 +211,21 @@ def main():
     ax.contourf(x_grid, y_grid, predicted, levels=32 if not use_noisy_labels else 32, cmap=cmap)
     if not use_noisy_labels:
         ax.plot(xs, ys, '-')
+    ax.set_title(_plot_title('Prediction'))
     points = ax.scatter(X_train[:, 0], X_train[:, 1], c=y_train, s=50, cmap=cmap, edgecolor='w')
     f.colorbar(points)
+    if save_files:
+        f.savefig(_filename('contour'), bbox_inches='tight')
     plt.show()
 
     # Plot the surface
-    fig, ax = plt.subplots(subplot_kw={'projection': '3d'})
+    f, ax = plt.subplots(subplot_kw={'projection': '3d'})
     surf = ax.plot_surface(x_grid, y_grid, label_grid, cmap=cm.coolwarm, linewidth=0, antialiased=False)
     ax.set_zlim(0., 1.)
-    fig.colorbar(surf, shrink=0.5, aspect=5)
+    ax.set_title(_plot_title('Surface'))
+    f.colorbar(surf, shrink=0.5, aspect=5)
+    if save_files:
+        f.savefig(_filename('surface'), bbox_inches='tight')
     plt.show()
 
 
